@@ -2,20 +2,25 @@
 # the generators before Haritha provides the actual Kaggle CSVs.
 
 POLICYHOLDER_COLUMNS = [
-    "ID", "KIDSDRIV", "BIRTH", "AGE", "HOMEKIDS", "YOJ", "INCOME", "PARENT1",
+    "ID", "POLICY_ID", "KIDSDRIV", "BIRTH", "AGE", "HOMEKIDS", "YOJ", "INCOME", "PARENT1",
     "HOME_VAL", "MSTATUS", "GENDER", "EDUCATION", "OCCUPATION", "TRAVTIME",
     "CAR_USE", "BLUEBOOK", "TIF", "CAR_TYPE", "RED_CAR", "OLDCLAIM", "CLM_FREQ",
     "REVOKED", "MVR_PTS", "CLM_AMT", "CAR_AGE", "CLAIM_FLAG", "URBANICITY",
 ]
 
+# POLICY_ID is the real row grain (see shared/transforms/bronze.py) - ID (the
+# person) can repeat across policies, so POLICY_ID is what's unique per row here
 MOCK_POLICYHOLDERS = [
-    # ID, ..., OLDCLAIM, CLM_FREQ, ..., CLM_AMT, ..., CLAIM_FLAG, ...
-    (1, 0, "1/1/1980", 45, 0, 12, 50000, "No", 150000, "Yes", "M", "Bachelors",
+    # ID, POLICY_ID, ..., OLDCLAIM, CLM_FREQ, ..., CLM_AMT, ..., CLAIM_FLAG, ...
+    (1, 101, 0, "1/1/1980", 45, 0, 12, 50000, "No", 150000, "Yes", "M", "Bachelors",
      "Manager", 20, "Private", 25000, 5, "SUV", "no", 4500, 2, "No", 1, 3200, 8, 1, "Urban"),
-    (2, 1, "1/1/1990", 35, 1, 8, 40000, "No", 0, "No", "F", "Masters",
+    (2, 102, 1, "1/1/1990", 35, 1, 8, 40000, "No", 0, "No", "F", "Masters",
      "Clerical", 30, "Commercial", 15000, 3, "Sedan", "yes", 0, 0, "No", 0, 0, 5, 0, "Rural"),
-    (3, 0, "1/1/1975", 50, 0, 15, 90000, "No", 250000, "Yes", "M", "PhD",
+    (3, 103, 0, "1/1/1975", 50, 0, 15, 90000, "No", 250000, "Yes", "M", "PhD",
      "Doctor", 10, "Private", 45000, 8, "SUV", "no", 12000, 3, "Yes", 4, 8000, 3, 1, "Urban"),
+    # same person (ID=1), a second policy on a different vehicle - the real-world case
+    (1, 104, 0, "1/1/1980", 45, 0, 12, 50000, "No", 150000, "Yes", "M", "Bachelors",
+     "Manager", 20, "Private", 18000, 5, "Sedan", "no", 900, 1, "No", 0, 0, 4, 0, "Urban"),
 ]
 
 TELEMATICS_COLUMNS = ["device_id", "timestamp", "PID", "value", "alarm_class"]

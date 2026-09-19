@@ -1,11 +1,12 @@
 """
-Only 3 real device_id values exist in Kumar's telematics dataset. This expands
-that into a synthetic fleet (~500 vehicles), using each PID's real value
-range/mean/stddev and real alarm_class boundaries so the synthetic readings
-still behave like real OBD-II telemetry, not random noise.
+Only 3 real device_id values exist in Kumar's telematics dataset (52 real PIDs,
+after POSITION is split into POSITION_LAT/LON/ALT by shared/transforms/bronze.py -
+run that first). This expands the 3 devices into a synthetic fleet (~500 vehicles),
+using each PID's real value range/mean/stddev and real alarm_class boundaries so
+the synthetic readings still behave like real OBD-II telemetry, not random noise.
 """
 import dbldatagen as dg
-from pyspark.sql import SparkSession, functions as F
+from pyspark.sql import SparkSession, functions as F, Window
 
 
 def generate_synthetic_fleet(
@@ -63,6 +64,10 @@ def generate_synthetic_fleet(
         (F.unix_timestamp(F.current_timestamp()) * 1000 - (F.rand(seed + 3) * 86400000).cast("long")),
     )
 
+    # row id before the range join below - real class ranges can overlap, which
+    # would otherwise duplicate rows (one row per matching class)
+    events = events.withColumn("event_row_id", F.monotonically_increasing_id())
+
     # alarm_class lookup - match generated value into real per-PID ranges
     events = events.join(
         alarm_bounds,
@@ -71,6 +76,11 @@ def generate_synthetic_fleet(
         & (events["value"] <= alarm_bounds["class_max"]),
         how="left",
     )
+
+    # dedup - overlapping ranges can match a row to 2+ classes, keep the highest
+    # (higher alarm_class = more specific/severe, real dataset also skews this way)
+    per_event = Window.partitionBy("event_row_id").orderBy(F.desc("alarm_class"))
+    events = events.withColumn("rn", F.row_number().over(per_event)).filter("rn = 1").drop("rn")
 
     # null handling - value outside every real range (rare, from clipping), default no alarm
     events = events.fillna({"alarm_class": 0})

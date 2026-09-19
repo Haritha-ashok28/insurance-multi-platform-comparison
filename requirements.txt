@@ -1,0 +1,8 @@
+pyspark==3.5.3
+delta-spark==3.2.1
+dbldatagen
+pandas==3.0.6
+numpy==2.4.6
+pyarrow==25.0.1
+jmespath==1.1.0
+pyparsing==3.3.2

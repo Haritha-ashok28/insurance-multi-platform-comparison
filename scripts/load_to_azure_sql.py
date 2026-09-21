@@ -11,7 +11,7 @@ if not conn_string:
     print("SQL_CONNECTION_STRING env var not set - see docs/azure_provisioning_runbook.md")
     sys.exit(1)
 
-# sqlalchemy wants an odbc-prefixed URL, not the raw ADO.NET-style string
+# sqlalchemy wants an odbc-prefixed URL
 engine_url = f"mssql+pyodbc:///?odbc_connect={conn_string}"
 engine = create_engine(engine_url, fast_executemany=True)
 

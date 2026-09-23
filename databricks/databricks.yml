@@ -1,0 +1,32 @@
+bundle:
+  name: project4_insurance_databricks
+
+include:
+  - resources/*.yml
+
+variables:
+  catalog:
+    description: Unity Catalog catalog name for this environment
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405617919268563.3.azuredatabricks.net
+    variables:
+      catalog: policybench_dev
+
+  qa:
+    mode: production
+    workspace:
+      host: https://adb-7405617919268563.3.azuredatabricks.net
+    variables:
+      catalog: policybench_qa
+
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-7405617919268563.3.azuredatabricks.net
+    variables:
+      catalog: policybench_prod

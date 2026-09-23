@@ -1,0 +1,36 @@
+resources:
+  jobs:
+    streaming_consumer_job:
+      name: streaming_consumer_job
+      job_clusters:
+        - job_cluster_key: producer_cluster
+          new_cluster:
+            spark_version: 17.3.x-scala2.13
+            node_type_id: Standard_DC4as_v5
+            num_workers: 0
+            autotermination_minutes: 10
+            data_security_mode: SINGLE_USER
+            spark_conf:
+              spark.databricks.cluster.profile: singleNode
+              spark.master: "local[*, 4]"
+            custom_tags:
+              ResourceClass: SingleNode
+      tasks:
+        - task_key: streaming_bronze
+          job_cluster_key: streaming_cluster
+          notebook_task:
+            notebook_path: ../notebooks/nb_streaming_bronze
+        - task_key: streaming_silver
+          job_cluster_key: streaming_cluster
+          depends_on: [{task_key: streaming_bronze}]
+          notebook_task:
+            notebook_path: ../notebooks/nb_streaming_silver
+        - task_key: streaming_gold
+          job_cluster_key: streaming_cluster
+          depends_on: [{task_key: streaming_silver}]
+          notebook_task:
+            notebook_path: ../notebooks/nb_streaming_gold
+      schedule:
+        quartz_cron_expression: "0 0 8-11 24 9 ? 2026"
+        timezone_id: America/Toronto
+        pause_status: UNPAUSED

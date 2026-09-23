@@ -19,7 +19,7 @@ resources:
         - task_key: streaming_producer
           job_cluster_key: producer_cluster
           notebook_task:
-            notebook_path: ../notebooks/nb_streaming_producer
+            notebook_path: ../notebooks/nb_streaming_producer.ipynb
       schedule:
         quartz_cron_expression: "0 45 7 24 9 ? 2026"
         timezone_id: America/Toronto

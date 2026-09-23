@@ -3,7 +3,7 @@ resources:
     streaming_consumer_job:
       name: streaming_consumer_job
       job_clusters:
-        - job_cluster_key: producer_cluster
+        - job_cluster_key: streaming_cluster
           new_cluster:
             spark_version: 17.3.x-scala2.13
             node_type_id: Standard_DC4as_v5
@@ -19,17 +19,17 @@ resources:
         - task_key: streaming_bronze
           job_cluster_key: streaming_cluster
           notebook_task:
-            notebook_path: ../notebooks/nb_streaming_bronze
+            notebook_path: ../notebooks/nb_streaming_bronze.ipynb
         - task_key: streaming_silver
           job_cluster_key: streaming_cluster
           depends_on: [{task_key: streaming_bronze}]
           notebook_task:
-            notebook_path: ../notebooks/nb_streaming_silver
+            notebook_path: ../notebooks/nb_streaming_silver.ipynb
         - task_key: streaming_gold
           job_cluster_key: streaming_cluster
           depends_on: [{task_key: streaming_silver}]
           notebook_task:
-            notebook_path: ../notebooks/nb_streaming_gold
+            notebook_path: ../notebooks/nb_streaming_gold.ipynb
       schedule:
         quartz_cron_expression: "0 0 8-11 24 9 ? 2026"
         timezone_id: America/Toronto

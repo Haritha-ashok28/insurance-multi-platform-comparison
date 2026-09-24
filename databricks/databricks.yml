@@ -21,6 +21,7 @@ targets:
     mode: production
     workspace:
       host: https://adb-7405617919268563.3.azuredatabricks.net
+      root_path: /Workspace/Users/selvan3101@outlook.com/.bundle/${bundle.name}/${bundle.target}
     variables:
       catalog: policybench_qa
 
